@@ -34,4 +34,4 @@ class Titles(models.Model):
         Reviews,  
         on_delete=models.SET_NULL, null=True,
     ) #в документации не увидела. нужен ли?
-    raiting = #не поняла 
+    #raiting = не поняла 

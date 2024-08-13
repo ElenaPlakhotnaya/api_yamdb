@@ -1,6 +1,7 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
-
+User = get_user_model()
 
 class Categories(models.Model):
     name = models.CharField(max_length=256)
@@ -17,8 +18,14 @@ class GenresTitles(models.Model):
                                   on_delete=models.SET_NULL, null=True,)    
 
 class Reviews(models.Model):
-    pass
-
+    text = models.TextField()
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='author')
+    score = models.IntegerField()
+    pub_date = models.DateTimeField('Дата размещения отзывы', auto_now_add=True)
+    title_id = models.ForeignKey('Title',
+                                 on_delete=models.SET_NULL, null=True,)
+    
 class Comments(models.Model):
     pass
 
@@ -30,8 +37,8 @@ class Titles(models.Model):
         Categories,
         on_delete=models.SET_NULL, null=True,
     )
-    rewiew = models.OneToOneField(
-        Reviews,  
+    rewiew = models.ForeignKey(
+        Reviews,
         on_delete=models.SET_NULL, null=True,
     ) #в документации не увидела. нужен ли?
     raiting = #не поняла 

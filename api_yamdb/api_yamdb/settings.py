@@ -80,7 +80,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
+AUTH_USER_MODEL = 'reviews.User'
 
 LANGUAGE_CODE = 'en-us'
 

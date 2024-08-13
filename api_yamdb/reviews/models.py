@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 
-from constants import MAX_LENGTH_NAME, SLICE_NAME
+from .constants import MAX_LENGTH_NAME, SLICE_NAME
 from reviews.validators import validate_username, validate_username_is_forbidden
 
 USER = 'user'
@@ -35,6 +35,7 @@ class User(AbstractUser):
     role = models.CharField(
         default=USER,
         choices=ROLES,
+        max_length=max(len(role) for role, _ in ROLES),
         verbose_name='Роль'
     )
     first_name = models.CharField(
@@ -54,7 +55,6 @@ class User(AbstractUser):
     )
 
     REQUIRED_FIELDS = ('email',)
-    USERNAME_FIELD = 'email'
 
     class Meta:
         verbose_name = 'Пользователь'

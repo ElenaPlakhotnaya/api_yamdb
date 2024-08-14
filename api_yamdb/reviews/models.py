@@ -14,7 +14,7 @@ class Genres(models.Model):
 class GenresTitles(models.Model):
     title_id = models.ForeignKey(Genres,
                                  on_delete=models.SET_NULL, null=True,)
-    genre_id =  models.ForeignKey('Titles',
+    genre_id = models.ForeignKey('Titles',
                                   on_delete=models.SET_NULL, null=True,)    
 
 class Reviews(models.Model):
@@ -22,12 +22,32 @@ class Reviews(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='author')
     score = models.IntegerField()
-    pub_date = models.DateTimeField('Дата размещения отзывы', auto_now_add=True)
-    title_id = models.ForeignKey('Title',
+    pub_date = models.DateTimeField('Дата отзывы', auto_now_add=True)
+    title_id = models.ForeignKey('Titles',
                                  on_delete=models.SET_NULL, null=True,)
-    
+ 
+    class Meta:
+        """Класс meta."""
+
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+
 class Comments(models.Model):
-    pass
+    text = models.TextField()
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='commet_author')
+    pub_date = models.DateTimeField('Дата комментария', auto_now_add=True)
+    review_id = models.ForeignKey(Reviews,
+                                 on_delete=models.SET_NULL, null=True,)
+
+    class Meta:
+        """Класс meta."""
+
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+
 
 class Titles(models.Model):
     name = models.CharField(max_length=256)
@@ -40,5 +60,4 @@ class Titles(models.Model):
     rewiew = models.ForeignKey(
         Reviews,
         on_delete=models.SET_NULL, null=True,
-    ) #в документации не увидела. нужен ли?
-    raiting = #не поняла 
+    )  #в документации не увидела. нужен ли?

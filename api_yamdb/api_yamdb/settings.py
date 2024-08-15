@@ -1,3 +1,6 @@
+import os
+import re
+from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,6 +85,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(weeks=5),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+
 AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'en-us'
@@ -102,6 +119,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 CONF_CODE_MAX_LEN = 5
+
 DEFAULT_CONF_CODE = 'X' * CONF_CODE_MAX_LEN
 
 FORBIDDEN_USERNAMES = ['me']
+
+VALID_CHARS = fr'{re.escape("0123456789")}'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+ADMIN_EMAIL_ADDRESS = 'admin@ex.ample'

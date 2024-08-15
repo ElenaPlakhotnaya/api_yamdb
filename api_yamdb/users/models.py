@@ -3,7 +3,7 @@ from django.db import models
 from django.conf import settings
 
 from .constants import MAX_LENGTH_NAME, SLICE_NAME
-from users.validators import validate_username, validate_username_is_forbidden
+from .validators import validate_username, username_is_not_forbidden
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -20,7 +20,7 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=MAX_LENGTH_NAME,
         unique=True,
-        validators=(validate_username, validate_username_is_forbidden,),
+        validators=[validate_username, username_is_not_forbidden],
         verbose_name='Имя пользователя',
     )
     bio = models.TextField(

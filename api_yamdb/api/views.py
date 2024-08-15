@@ -1,21 +1,24 @@
-from django.shortcuts import render
-from rest_framework import filters
+from rest_framework.filters import SearchFilter
 
-from reviews.models import Titles, Categories, Genres
+from reviews.models import Title, Category, Genre
 
 from api.serializers import TitleSerializer, CategorySerializer, GenreSerializer
 
+
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
+    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year',)
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Categories.objects.all()
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (SearchFilter,)
     search_fields = ('name',)
 
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genres.objects.all()
+
+class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)

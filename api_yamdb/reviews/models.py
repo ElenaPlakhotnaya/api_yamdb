@@ -4,7 +4,7 @@ from django.db import models
 class Category(models.Model):
     name = models.CharField('Название категории', max_length=256)
     slug = models.SlugField('Идентификатор', max_length=50, unique=True)
-    
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -12,16 +12,18 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 class Genre(models.Model):
     name = models.CharField('Название жанра', max_length=256)
     slug = models.SlugField('Идентификатор', max_length=50, unique=True)
-    
+
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name
+
 
 class TitleGenre(models.Model):
     title_id = models.ForeignKey('Title',
@@ -40,11 +42,11 @@ class Title(models.Model):
         verbose_name='Категория',
     )
     genre = models.ManyToManyField(Genre, through=TitleGenre,
-                                   verbose_name='Жанр',)  #сомневаюсь в этом поле
-    rewiew = models.ForeignKey(   
-        Review,
-        on_delete=models.SET_NULL, null=True,
-    )  # в документации не увидела. нужен ли?
+                                   verbose_name='Жанр',)  # сомневаюсь в этом поле
+    # rewiew = models.ForeignKey(
+    #    Review,
+    #    on_delete=models.SET_NULL, null=True,
+    # )  в документации не увидела. нужен ли?
     raiting = models.FloatField('Рейтинг', null=True)
 
     class Meta:

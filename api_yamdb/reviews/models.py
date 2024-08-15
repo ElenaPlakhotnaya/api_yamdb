@@ -91,5 +91,4 @@ class Titles(models.Model):
     rewiew = models.OneToOneField(
         Reviews,  
         on_delete=models.SET_NULL, null=True,
-    ) #в документации не увидела. нужен ли?
-    #raiting = не поняла
+    )  #в документации не увидела. нужен ли?

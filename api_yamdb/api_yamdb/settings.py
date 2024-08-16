@@ -111,9 +111,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
@@ -127,5 +124,7 @@ FORBIDDEN_USERNAMES = ['me']
 VALID_CHARS = fr'{re.escape("0123456789")}'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_email')
 
 ADMIN_EMAIL_ADDRESS = 'admin@ex.ample'

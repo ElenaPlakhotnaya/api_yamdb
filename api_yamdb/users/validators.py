@@ -17,7 +17,7 @@ def validate_confirmation_code(code):
     return code
 
 
-def validate_username(username):
+def validate_username_symbols(username):
     forbidden_chars = re.findall(r'[^\w.@+-]', username)
     if forbidden_chars:
         raise ValidationError(
@@ -25,9 +25,9 @@ def validate_username(username):
         )
     return username
 
-def username_is_not_forbidden(value):
-    if value in settings.FORBIDDEN_USERNAMES:
+def username_is_not_forbidden(username):
+    if username in settings.FORBIDDEN_USERNAMES:
         raise ValidationError(
-            f'Имя пользователя {value} не разрешено.'
+            f'Имя пользователя {username} не разрешено.'
         )
-    return value
+    return username

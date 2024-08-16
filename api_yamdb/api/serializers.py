@@ -15,7 +15,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('name', 'description', 'year', 'category', 'genre',)
+        fields = ('id', 'name', 'description', 'year', 'category', 'genre',)
 
     def validate_year(self, value):
         year_today = datetime.datetime.now().year
@@ -29,14 +29,41 @@ class TitleSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('id', 'name', 'slug',)
+    
+    def validate_name(self, value):
+        if len(value) > 256:
+            raise serializers.ValidationError(
+                'Длина поля name не должна превышать 256 символов.'
+            )
+        return value
+    
+    def validate_slug(self, value):
+        if len(value) > 50:
+            raise serializers.ValidationError(
+                'Длина поля slug не должна превышать 50 символов.'
+            )
+        return value
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
-
+        fields = ('id', 'name', 'slug',)
+    
+    def validate_name(self, value):
+        if len(value) > 256:
+            raise serializers.ValidationError(
+                'Длина поля name не должна превышать 256 символов.'
+            )
+        return value
+    
+    def validate_slug(self, value):
+        if len(value) > 50:
+            raise serializers.ValidationError(
+                'Длина поля slug не должна превышать 50 символов.'
+            )
+        return value
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(

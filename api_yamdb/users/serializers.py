@@ -1,11 +1,9 @@
 import re
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from api_yamdb.settings import CONF_CODE_MAX_LEN, VALID_CHARS, DEFAULT_CONF_CODE
 from users.models import User
-
 from .constants import MAX_LENGTH_NAME, MAX_LENGTH_EMAIL
 from .mixins import UserMixin
 from .validators import validate_confirmation_code
@@ -26,20 +24,6 @@ class RetrieveTokenSerializer(serializers.Serializer, UserMixin):
                                               validators=(
                                                   validate_confirmation_code,)
                                               )
-
-    def validate_confirmation_code(self, pin_code):
-        if pin_code == DEFAULT_CONF_CODE:
-            raise ValidationError(
-                'Ошибка. Сначала получите код подтверждения.'
-            )
-        invalid_chars = re.findall(
-            fr"'{re.escape(VALID_CHARS)}\s'", pin_code
-        )
-        if invalid_chars:
-            raise ValidationError(
-                f'Код не должен содержать символы {invalid_chars}'
-            )
-        return pin_code
 
 
 class SignUpSerializer(serializers.Serializer, UserMixin):

@@ -1,5 +1,7 @@
 import os
+import random
 import re
+import string
 from datetime import timedelta
 from pathlib import Path
 
@@ -12,7 +14,6 @@ SECRET_KEY = 'p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -98,7 +99,6 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-
 AUTH_USER_MODEL = 'users.User'
 
 LANGUAGE_CODE = 'en-us'
@@ -117,11 +117,13 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 CONF_CODE_MAX_LEN = 5
 
-DEFAULT_CONF_CODE = 'X' * CONF_CODE_MAX_LEN
+DEFAULT_CONF_CODE = ''.join(
+    random.choices(string.ascii_uppercase + string.digits,
+                   k=CONF_CODE_MAX_LEN))
 
 FORBIDDEN_USERNAMES = ['me']
 
-VALID_CHARS = fr'{re.escape("0123456789")}'
+VALID_CHARS = f'{re.escape("0123456789")}'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 

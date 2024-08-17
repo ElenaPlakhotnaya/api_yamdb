@@ -1,5 +1,5 @@
 import datetime
-
+import re
 from rest_framework import serializers
 
 from reviews.models import Category, Genre, Title, Comments, Reviews
@@ -15,7 +15,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'description', 'year', 'category', 'genre',)
+        fields = '__all__'
 
     def validate_year(self, value):
         year_today = datetime.datetime.now().year
@@ -29,7 +29,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug',)
+        fields = '__all__'
     
     def validate_name(self, value):
         if len(value) > 256:
@@ -38,10 +38,15 @@ class CategorySerializer(serializers.ModelSerializer):
             )
         return value
     
-    def validate_slug(self, value):
+    def validate_slug(self, value):        
         if len(value) > 50:
             raise serializers.ValidationError(
                 'Длина поля slug не должна превышать 50 символов.'
+            )
+        pattern = r'^[-a-zA-Z0-9_]+$'
+        if not re.match(pattern, value):
+            raise serializers.ValidationError(
+            'Убедитесь, что используются только допустимые символы'
             )
         return value
 
@@ -49,7 +54,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('id', 'name', 'slug',)
+        fields = '__all__'
     
     def validate_name(self, value):
         if len(value) > 256:
@@ -57,11 +62,16 @@ class GenreSerializer(serializers.ModelSerializer):
                 'Длина поля name не должна превышать 256 символов.'
             )
         return value
-    
+
     def validate_slug(self, value):
         if len(value) > 50:
             raise serializers.ValidationError(
                 'Длина поля slug не должна превышать 50 символов.'
+            )
+        pattern = r'^[-a-zA-Z0-9_]+$'
+        if not re.match(pattern, value):
+            raise serializers.ValidationError(
+                'Убедитесь, что используются только допустимые символы'
             )
         return value
 

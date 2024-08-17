@@ -42,7 +42,9 @@ class Reviews(models.Model):
     score = models.IntegerField()
     pub_date = models.DateTimeField('Дата отзывы', auto_now_add=True)
     title_id = models.ForeignKey('Title',
-                                 on_delete=models.SET_NULL, null=True,)
+                                 on_delete=models.SET_NULL, null=True, 
+                                 related_name='title_review'
+                                 )
 
     class Meta:
         """Класс meta."""
@@ -57,7 +59,9 @@ class Comments(models.Model):
         User, on_delete=models.CASCADE, related_name='commet_author')
     pub_date = models.DateTimeField('Дата комментария', auto_now_add=True)
     review_id = models.ForeignKey(Reviews,
-                                  on_delete=models.SET_NULL, null=True,)
+                                  on_delete=models.SET_NULL, null=True, 
+                                  related_name='review_comments'
+                                  )
 
     class Meta:
         """Класс meta."""
@@ -77,8 +81,7 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(Genre, through=TitleGenre,
                                    verbose_name='Жанр',)
-    raiting = models.FloatField('Рейтинг', null=True)
-
+    
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'

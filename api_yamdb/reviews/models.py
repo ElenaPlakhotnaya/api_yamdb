@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
+from django.db.models import Avg
+from django.core.exceptions import ValidationError
 from users.models import User
-
+from django.http import HttpResponseBadRequest
 
 class Category(models.Model):
     name = models.CharField('Название категории', max_length=256)
@@ -12,7 +12,7 @@ class Category(models.Model):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-    def __str__(self):
+    def str(self):
         return self.name
 
 
@@ -24,7 +24,7 @@ class Genre(models.Model):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
-    def __str__(self):
+    def str(self):
         return self.name
 
 
@@ -39,16 +39,24 @@ class Reviews(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='author')
-    score = models.IntegerField()
+    score = models.IntegerField('Оценка')
     pub_date = models.DateTimeField('Дата отзывы', auto_now_add=True)
     title_id = models.ForeignKey('Title',
-                                 on_delete=models.SET_NULL, null=True,)
+                                 on_delete=models.SET_NULL, null=True, related_name='title_review')
 
     class Meta:
         """Класс meta."""
-
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+    
+    #def validate_unique(self, exclude=None):
+        #qs = Reviews.objects.filter(title_id=self.title_id)
+        #if qs.filter(author=self.author):
+            #raise ValueError('hbjhjh')
+
+    #def save(self, *args, **kwargs):
+        #self.validate_unique()
+        #super(Reviews. self).save(*args, **kwargs)
 
 
 class Comments(models.Model):
@@ -57,7 +65,7 @@ class Comments(models.Model):
         User, on_delete=models.CASCADE, related_name='commet_author')
     pub_date = models.DateTimeField('Дата комментария', auto_now_add=True)
     review_id = models.ForeignKey(Reviews,
-                                  on_delete=models.SET_NULL, null=True,)
+                                  on_delete=models.SET_NULL, null=True, related_name='review_comments')
 
     class Meta:
         """Класс meta."""
@@ -77,11 +85,11 @@ class Title(models.Model):
     )
     genre = models.ManyToManyField(Genre, through=TitleGenre,
                                    verbose_name='Жанр',)
-    raiting = models.FloatField('Рейтинг', null=True)
 
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
-    def __str__(self):
+    def str(self):
         return self.name
+    

@@ -3,6 +3,7 @@ import datetime
 from rest_framework import serializers
 
 from reviews.models import Category, Genre, Title, Comments, Reviews
+from rest_framework.validators import UniqueValidator
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -12,10 +13,13 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='name', read_only=True
     )
-
+    # rating = serializers.IntegerField()
+    
     class Meta:
         model = Title
-        fields = ('id', 'name', 'description', 'year', 'category', 'genre',)
+        read_only_fields = ('raiting', )
+        # fields = ('id', 'name', 'description', 'year', 'category', 'genre', 'rating')
+        fields = ('id', 'name', 'description', 'year', 'category', 'genre')
 
     def validate_year(self, value):
         year_today = datetime.datetime.now().year
@@ -29,7 +33,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug',)
+        fields = ('name', 'slug',)
     
     def validate_name(self, value):
         if len(value) > 256:
@@ -49,7 +53,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('id', 'name', 'slug',)
+        fields = ('name', 'slug',)
     
     def validate_name(self, value):
         if len(value) > 256:
@@ -78,10 +82,14 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ReviewsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        read_only=True, slug_field='username', validators=[UniqueValidator(queryset=Reviews.objects.all(),
+        message=("Name already exists"))]
     )
 
+    
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Reviews
-        read_only_fields = ('title_id', )
+        read_only_fields = ('id', )
+        
+       

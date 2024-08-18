@@ -10,7 +10,7 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='name', read_only=True
     )
     genre = serializers.SlugRelatedField(
-        slug_field='name', read_only=True
+        slug_field='name', read_only=True, many=True
     )
 
     class Meta:
@@ -29,7 +29,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('name', 'slug',)
     
     def validate_name(self, value):
         if len(value) > 256:
@@ -54,7 +54,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ('name', 'slug',)
     
     def validate_name(self, value):
         if len(value) > 256:

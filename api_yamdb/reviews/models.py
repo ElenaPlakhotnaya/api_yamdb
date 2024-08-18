@@ -30,9 +30,9 @@ class Genre(models.Model):
 
 class TitleGenre(models.Model):
     title_id = models.ForeignKey('Title',
-                                 on_delete=models.SET_NULL, null=True,)
+                                 on_delete=models.CASCADE, null=True,)
     genre_id = models.ForeignKey(Genre,
-                                 on_delete=models.SET_NULL, null=True,)
+                                 on_delete=models.CASCADE, null=True,)
 
 
 class Reviews(models.Model):

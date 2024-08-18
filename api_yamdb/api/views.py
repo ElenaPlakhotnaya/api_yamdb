@@ -6,11 +6,19 @@ from api.serializers import (CategorySerializer, GenreSerializer,
                              TitleSerializer, CommentSerializer, 
                              ReviewsSerializer)
 from reviews.models import Category, Genre, Title, Comments, Reviews
-from rest_framework import viewsets
-from users.permissions import IsAdminOrReadOnly
+from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from api.pagination import CustomPagination
+from rest_framework import status
+from rest_framework.response import Response
+from api.permissions import IsAdminOrReadOnly
+
+class ListCreateDestroyViewSet(mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
+    ...
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
@@ -20,21 +28,22 @@ class TitleViewSet(viewsets.ModelViewSet):
     filterset_fields = ('category__slug', 'genre__slug', 'name', 'year',)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
-    http_method_names = ['get', 'post', 'delete']
+    lookup_field = 'slug'
+    
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',) 
-    http_method_names = ['get', 'post', 'delete']
+    lookup_field = 'slug'
 
 class CommentsViewSet(viewsets.ModelViewSet):
     queryset = Comments.objects.all()

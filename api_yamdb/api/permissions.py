@@ -7,7 +7,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             return True
         else:
             if request.user.is_authenticated:
-                if (request.user.is_superuser or
-                        request.user.is_admin):
+                if (request.user.is_superuser or request.user.is_admin):
                     return True
         return False

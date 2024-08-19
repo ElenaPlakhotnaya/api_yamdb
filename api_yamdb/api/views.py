@@ -5,35 +5,47 @@ from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 from api.serializers import (CategorySerializer, GenreSerializer,
                              TitleSerializer, CommentSerializer, 
-                             ReviewsSerializer)
+                             ReviewsSerializer, TitleListSerializer)
 from reviews.models import Category, Genre, Title, Comments, Reviews
-from rest_framework import viewsets
-from .permission import IsAuthor
+from rest_framework import viewsets, mixins
+from .permission import IsAuthor, IsAdminOrReadOnly
 
+class ListCreateDestroyViewSet(mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
+    ...
 
 class TitleViewSet(viewsets.ModelViewSet):
-    # queryset = Title.objects.annotate(rating=Avg('title_review__score'))
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    queryset = Title.objects.annotate(rating=Avg('title_review__score'))
+    #queryset = Title.objects.all()
+    serializer_class = TitleListSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category__slug', 'genre__slug', 'name', 'year',)
     http_method_names = ['get', 'post', 'patch', 'delete']
-    #permission_classes = (IsAdminUser,)
+    permission_classes = (IsAdminOrReadOnly,)
 
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleListSerializer
+        return TitleSerializer
+    
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
-    #permission_classes = (IsAdminUser,)
+    lookup_field = 'slug'
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    #permission_classes = (IsAdminUser,)
+    search_fields = ('name',) 
+    lookup_field = 'slug'
 
 class CommentsViewSet(viewsets.ModelViewSet):
     queryset = Comments.objects.all()
@@ -77,11 +89,12 @@ class ReviewsViewSet(viewsets.ModelViewSet):
         return title.title_review.all()
 
     def perform_create(self, serializer):
-        title = self.get_review_id()
-        this_title = Reviews.objects.all()
-        if this_title.filter(author=self.request.user):
-            raise ValueError('Так нельзя')
-        serializer.save(author=self.request.user, title_id=title)
+        if serializer.is_valid():
+            title = self.get_review_id()
+        #this_title = Reviews.objects.all()
+        #if this_title.filter(author=self.request.user):
+            #raise ValueError('Так нельзя')
+            serializer.save(author=self.request.user, title_id=title)
 
     def perform_update(self, serializer):
         

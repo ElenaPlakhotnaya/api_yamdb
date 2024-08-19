@@ -30,9 +30,9 @@ class Genre(models.Model):
 
 class TitleGenre(models.Model):
     title_id = models.ForeignKey('Title',
-                                 on_delete=models.SET_NULL, null=True,)
+                                 on_delete=models.SET_NULL, null=True )
     genre_id = models.ForeignKey(Genre,
-                                 on_delete=models.SET_NULL, null=True,)
+                                 on_delete=models.SET_NULL, null=True)
 
 
 class Reviews(models.Model):
@@ -81,10 +81,10 @@ class Title(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL, null=True,
-        verbose_name='Категория',
+        verbose_name='Категория', related_name='category'
     )
     genre = models.ManyToManyField(Genre, through=TitleGenre,
-                                   verbose_name='Жанр',)
+                                   verbose_name='Жанр', related_name='genre')
 
     class Meta:
         verbose_name = 'Произведение'

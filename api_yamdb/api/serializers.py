@@ -6,29 +6,6 @@ from reviews.models import Category, Genre, Title, Comments, Reviews
 from rest_framework.validators import UniqueValidator
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        slug_field='name', read_only=True
-    )
-    genre = serializers.SlugRelatedField(
-        slug_field='name', read_only=True
-    )
-    # rating = serializers.IntegerField()
-    
-    class Meta:
-        model = Title
-        read_only_fields = ('raiting', )
-        # fields = ('id', 'name', 'description', 'year', 'category', 'genre', 'rating')
-        fields = ('id', 'name', 'description', 'year', 'category', 'genre')
-
-    def validate_year(self, value):
-        year_today = datetime.datetime.now().year
-        if value > year_today:
-            raise serializers.ValidationError(
-                f"Год выпуска не может быть позднее {year_today}."
-            )
-        return value
-
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -92,4 +69,42 @@ class ReviewsSerializer(serializers.ModelSerializer):
         model = Reviews
         read_only_fields = ('id', )
         
-       
+class TitleListSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(
+        read_only=True
+    )
+    genre = GenreSerializer(
+        read_only=True, many=True
+    )
+    rating = serializers.IntegerField(read_only=True)
+    
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'description', 'year', 'category', 'genre', 'rating')
+
+    def save(self):
+        rating = self.validated_data['rating']
+
+class TitleSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='name', queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='name', many=True, queryset=Genre.objects.all(), allow_empty=True
+    )
+    
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'description', 'year', 'category', 'genre')
+
+    def validate_year(self, value):
+        year_today = datetime.datetime.now().year
+        if value > year_today:
+            raise serializers.ValidationError(
+                f"Год выпуска не может быть позднее {year_today}."
+            )
+        return value
+    
+    def to_representation(self, instance):
+        return TitleListSerializer(instance).data
+

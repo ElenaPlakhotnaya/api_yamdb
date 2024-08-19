@@ -48,7 +48,7 @@ class Reviews(models.Model):
 
     class Meta:
         """Класс meta."""
-
+        unique_together = ('author', 'title_id',)
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
 

@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from reviews.models import Category, Genre, Title, Comments, Reviews
 from rest_framework.validators import UniqueValidator
-
+from django.db.models import Avg
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -69,15 +69,25 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ReviewsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username', validators=[UniqueValidator(queryset=Reviews.objects.all(),
-        message=("Name already exists"))]
+        read_only='True', slug_field='username'
     )
 
-    
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Reviews
         read_only_fields = ('id', )
+
+    def validate(self, data):
+        title_id = self.context.get(
+            'request'
+        ).parser_context['kwargs']['id']
+        author = self.context.get('request').user
+        this_title = Reviews.objects.all()
+        if this_title.filter(author=author, title_id=title_id):
+            raise serializers.ValidationError(
+                'Нельзя оставлять два отзыва к одному фильму.'
+            )
+        return data
         
 class TitleListSerializer(serializers.ModelSerializer):
     category = CategorySerializer(
@@ -86,14 +96,20 @@ class TitleListSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(
         read_only=True, many=True
     )
-    rating = serializers.IntegerField(read_only=True)
+    rating = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = Title
-        fields = ('id', 'name', 'description', 'year', 'category', 'genre', 'rating')
+        fields = ('id', 'name', 'description', 'year', 'rating', 'category', 'genre')
 
-    def save(self):
-        rating = self.validated_data['rating']
+    def get_rating(self, obj):
+        reviews = obj.title_review.all()
+        if reviews:
+            result = reviews.aggregate(Avg('score'))['score__avg']
+            return int(result)
+        return None
+
+
 
 class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
@@ -102,7 +118,8 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         slug_field='name', many=True, queryset=Genre.objects.all(), allow_empty=False
     )
-    
+    description = serializers.CharField(required=False)
+
     class Meta:
         model = Title
         fields = ('id', 'name', 'description', 'year', 'category', 'genre')

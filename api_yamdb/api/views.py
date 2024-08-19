@@ -21,7 +21,7 @@ class ListCreateDestroyViewSet(mixins.ListModelMixin,
     ...
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(rating=Avg('title_review__score'))
+    queryset = Title.objects.all()
     serializer_class = TitleListSerializer
     filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)

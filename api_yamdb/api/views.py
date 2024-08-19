@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 from api.serializers import (CategorySerializer, GenreSerializer,
                              TitleSerializer, CommentSerializer, 
-                             ReviewsSerializer)
+                             ReviewsSerializer, TitleListSerializer)
 from reviews.models import Category, Genre, Title, Comments, Reviews
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
@@ -12,8 +12,8 @@ from rest_framework.pagination import PageNumberPagination
 from api.pagination import CustomPagination
 from rest_framework import status
 from rest_framework.response import Response
-from api.permissions import IsAdminOrReadOnly
-
+from api.permissions import IsAuthor, IsAdminOrReadOnly
+from django.db.models import Avg
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
                                mixins.CreateModelMixin,
                                mixins.DestroyModelMixin,
@@ -21,12 +21,17 @@ class ListCreateDestroyViewSet(mixins.ListModelMixin,
     ...
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    queryset = Title.objects.annotate(rating=Avg('title_review__score'))
+    serializer_class = TitleListSerializer
     filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)
     filterset_fields = ('category__slug', 'genre__slug', 'name', 'year',)
     http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleListSerializer
+        return TitleSerializer
 
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
@@ -48,7 +53,8 @@ class GenreViewSet(ListCreateDestroyViewSet):
 class CommentsViewSet(viewsets.ModelViewSet):
     queryset = Comments.objects.all()
     serializer_class = CommentSerializer
-    
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = (IsAuthor,)
 
     def get_review_id(self, **kwargs):
         review_id = self.kwargs.get('review_id')
@@ -73,6 +79,8 @@ class CommentsViewSet(viewsets.ModelViewSet):
 class ReviewsViewSet(viewsets.ModelViewSet):
     queryset = Reviews.objects.all()
     serializer_class = ReviewsSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = (IsAuthor,)
 
     def get_review_id(self, **kwargs):
         title_id = self.kwargs.get('id')
@@ -84,10 +92,15 @@ class ReviewsViewSet(viewsets.ModelViewSet):
         return title.title_review.all()
 
     def perform_create(self, serializer):
-        title = self.get_review_id()
-        serializer.save(author=self.request.user, title_id=title)
+        if serializer.is_valid():
+            title = self.get_review_id()
+        #this_title = Reviews.objects.all()
+        #if this_title.filter(author=self.request.user):
+            #raise ValueError('Так нельзя')
+            serializer.save(author=self.request.user, title_id=title)
 
     def perform_update(self, serializer):
+        
         super(ReviewsViewSet, self).perform_update(serializer)
 
     def perform_destroy(self, serializer):

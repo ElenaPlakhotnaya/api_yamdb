@@ -1,79 +1,49 @@
 import datetime
 import re
 from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
 
-from reviews.models import Category, Genre, Title, Comments, Reviews
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(
-        slug_field='name', read_only=True
-    )
-    genre = serializers.SlugRelatedField(
-        slug_field='name', read_only=True, many=True
-    )
-
-    class Meta:
-        model = Title
-        fields = '__all__'
-
-    def validate_year(self, value):
-        year_today = datetime.datetime.now().year
-        if value > year_today:
-            raise serializers.ValidationError(
-                f"Год выпуска не может быть позднее {year_today}."
-            )
-        return value
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ('name', 'slug',)
-    
-    def validate_name(self, value):
-        if len(value) > 256:
-            raise serializers.ValidationError(
-                'Длина поля name не должна превышать 256 символов.'
-            )
-        return value
-    
-    def validate_slug(self, value):        
-        if len(value) > 50:
-            raise serializers.ValidationError(
-                'Длина поля slug не должна превышать 50 символов.'
-            )
-        pattern = r'^[-a-zA-Z0-9_]+$'
-        if not re.match(pattern, value):
-            raise serializers.ValidationError(
-            'Убедитесь, что используются только допустимые символы'
-            )
-        return value
+from reviews.models import Category, Genre, Title, Comment, Review
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ('name', 'slug',)
-    
-    def validate_name(self, value):
-        if len(value) > 256:
-            raise serializers.ValidationError(
-                'Длина поля name не должна превышать 256 символов.'
-            )
-        return value
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
 
-    def validate_slug(self, value):
-        if len(value) > 50:
-            raise serializers.ValidationError(
-                'Длина поля slug не должна превышать 50 символов.'
-            )
-        pattern = r'^[-a-zA-Z0-9_]+$'
-        if not re.match(pattern, value):
-            raise serializers.ValidationError(
-                'Убедитесь, что используются только допустимые символы'
-            )
-        return value
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
+
+
+class TitleSafeMethodsSerializer(serializers.ModelSerializer):
+    rating = serializers.IntegerField(read_only=True)
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Title
+        fields = (
+            'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        read_only_fields = fields
+
+
+class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
+    genre = serializers.SlugRelatedField(queryset=Genre.objects.all(),
+                                         slug_field='slug', many=True)
+    category = serializers.SlugRelatedField(queryset=Category.objects.all(),
+                                            slug_field='slug')
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+        read_only_fields = ('rating',)
+
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -82,16 +52,31 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Comments
-        read_only_fields = ('review_id', )
+        model = Comment
+        read_only_fields = ('review_id',)
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username',
     )
 
+    def validate(self, data):
+        request = self.context.get('request')
+        print(self.context['view'].kwargs)
+        if request.method == 'POST':
+            if Review.objects.filter(
+                    title=get_object_or_404(Title,
+                                            pk=self.context['view'].kwargs['title_id']),
+                    author=request.user
+            ).exists():
+                raise serializers.ValidationError(
+                    'Нельзя оставлять больше одного отзыва на произведение')
+        return data
+
     class Meta:
-        fields = '__all__'
-        model = Reviews
-        read_only_fields = ('title_id', )
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        read_only_fields = ('title_id',)

@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.conf import settings
 
 from .constants import MAX_LENGTH_NAME, SLICE_NAME
-from .validators import validate_username_symbols, username_is_not_forbidden
+from .validators import username_is_not_forbidden, validate_username_symbols
 
 USER = 'user'
 MODERATOR = 'moderator'

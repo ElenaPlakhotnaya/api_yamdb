@@ -1,7 +1,7 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework import routers
 
-from users.views import UserViewSet, ApiUserSignupView, APIGetTokenView
+from users.views import APIGetTokenView, ApiUserSignupView, UserViewSet
 
 api_v1_router = routers.DefaultRouter()
 api_v1_router.register(r'users', UserViewSet, basename='get_token')

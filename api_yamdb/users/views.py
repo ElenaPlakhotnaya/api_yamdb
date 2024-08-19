@@ -16,8 +16,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from api_yamdb import settings
 from users.permissions import IsAdmin
-from users.serializers import UserSerializer, UserNotAdminSerializer, \
-    RetrieveTokenSerializer, SignUpSerializer
+from users.serializers import (RetrieveTokenSerializer, SignUpSerializer,
+                               UserNotAdminSerializer, UserSerializer)
 
 User = get_user_model()
 

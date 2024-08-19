@@ -1,9 +1,9 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.conf import settings
 
 from .constants import MAX_LENGTH_NAME, SLICE_NAME
-from users.validators import validate_username, validate_username_is_forbidden
+from .validators import username_is_not_forbidden, validate_username_symbols
 
 USER = 'user'
 MODERATOR = 'moderator'
@@ -20,17 +20,17 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=MAX_LENGTH_NAME,
         unique=True,
-        validators=(validate_username, validate_username_is_forbidden,),
+        validators=[validate_username_symbols, username_is_not_forbidden],
         verbose_name='Имя пользователя',
+    )
+    email = models.EmailField(
+        unique=True,
+        verbose_name='Email'
     )
     bio = models.TextField(
         null=True,
         blank=True,
         verbose_name='Биография'
-    )
-    email = models.EmailField(
-        unique=True,
-        verbose_name='Email'
     )
     role = models.CharField(
         default=USER,
@@ -59,13 +59,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('email',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=('email', 'username'),
-                name='unique_email_username'
-            )
-        ]
+        ordering = ('username',)
 
     @property
     def is_moderator(self):

@@ -2,9 +2,10 @@ import re
 
 from rest_framework import serializers
 
-from api_yamdb.settings import CONF_CODE_MAX_LEN, VALID_CHARS, DEFAULT_CONF_CODE
+from api_yamdb.settings import CONF_CODE_MAX_LEN
 from users.models import User
-from .constants import MAX_LENGTH_NAME, MAX_LENGTH_EMAIL
+
+from .constants import MAX_LENGTH_EMAIL, MAX_LENGTH_NAME
 from .mixins import UserMixin
 from .validators import validate_confirmation_code
 

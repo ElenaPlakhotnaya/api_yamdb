@@ -1,9 +1,13 @@
-from django.core.management.base import BaseCommand
-from reviews.models import TitleGenre, Title, Genre
 import csv
+
+from django.core.management.base import BaseCommand
+
+from reviews.models import Genre, Title, TitleGenre
+
 
 class Command(BaseCommand):
     help = 'Загружает файлы genre_title.csv в базу данных'
+
     def handle(self, *args, **kwargs):
         file_path = 'static/data/genre_title.csv'
         with open(file_path, mode='r', encoding='utf-8') as csv_file:

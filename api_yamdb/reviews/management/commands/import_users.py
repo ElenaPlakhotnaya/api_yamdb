@@ -1,9 +1,13 @@
-from django.core.management.base import BaseCommand
-from users.models import User  
 import csv
+
+from django.core.management.base import BaseCommand
+
+from users.models import User
+
 
 class Command(BaseCommand):
     help = 'Загружает файлы users.csv в базу данных'
+
     def handle(self, *args, **kwargs):
         file_path = 'static/data/users.csv'
         with open(file_path, mode='r', encoding='utf-8') as csv_file:
@@ -22,5 +26,3 @@ class Command(BaseCommand):
                     print(f"Создан пользователь: {user.username}")
                 else:
                     print(f"Пользователь уже существует: {user.username}")
-               
-            

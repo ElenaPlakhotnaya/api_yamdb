@@ -1,9 +1,10 @@
 import datetime
 import re
+
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
-from reviews.models import Category, Genre, Title, Comment, Review
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -42,7 +43,6 @@ class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
         read_only_fields = ('rating',)
-
 
 
 class CommentSerializer(serializers.ModelSerializer):

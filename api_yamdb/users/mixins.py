@@ -1,4 +1,4 @@
-from .validators import validate_username_symbols, username_is_not_forbidden
+from .validators import username_is_not_forbidden, validate_username_symbols
 
 
 class UserMixin:

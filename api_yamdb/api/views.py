@@ -1,23 +1,16 @@
 from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
-from api.serializers import (CategorySerializer, GenreSerializer,
-                             TitleUnsafeMethodsSerializer,
-                             TitleSafeMethodsSerializer, CommentSerializer,
-                             ReviewsSerializer)
-from reviews.filters import TitleFilter
-from reviews.models import Category, Genre, Title, Comment, Review
-from rest_framework import viewsets, mixins
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from api.pagination import CustomPagination
-from rest_framework import status
-from rest_framework.response import Response
-# from api.permissions import IsAdminOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins, viewsets
+from rest_framework.filters import SearchFilter
 
-from users.permissions import IsAdminOrReadOnly, IsAdminOrModeratorOrReadOnly
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewsSerializer,
+                             TitleSafeMethodsSerializer,
+                             TitleUnsafeMethodsSerializer)
+from reviews.filters import TitleFilter
+from reviews.models import Category, Comment, Genre, Review, Title
+from users.permissions import IsAdminOrModeratorOrReadOnly, IsAdminOrReadOnly
 
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
@@ -93,4 +86,3 @@ class ReviewsViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, title=self.get_title())
-

@@ -1,6 +1,8 @@
-from django.core.management.base import BaseCommand
-from reviews.models import Category
 import csv
+
+from django.core.management.base import BaseCommand
+
+from reviews.models import Category
 
 
 class Command(BaseCommand):

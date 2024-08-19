@@ -1,18 +1,24 @@
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 from api.serializers import (CategorySerializer, GenreSerializer,
-                             TitleSerializer, CommentSerializer, 
+                             TitleUnsafeMethodsSerializer,
+                             TitleSafeMethodsSerializer, CommentSerializer,
                              ReviewsSerializer)
-from reviews.models import Category, Genre, Title, Comments, Reviews
+from reviews.filters import TitleFilter
+from reviews.models import Category, Genre, Title, Comment, Review
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from api.pagination import CustomPagination
 from rest_framework import status
 from rest_framework.response import Response
-from api.permissions import IsAdminOrReadOnly
+# from api.permissions import IsAdminOrReadOnly
+
+from users.permissions import IsAdminOrReadOnly, IsAdminOrModeratorOrReadOnly
+
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
                                mixins.CreateModelMixin,
@@ -20,13 +26,21 @@ class ListCreateDestroyViewSet(mixins.ListModelMixin,
                                viewsets.GenericViewSet):
     ...
 
+
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    queryset = Title.objects.annotate(
+        rating=Avg('title_review__score')
+    )
     filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)
-    filterset_fields = ('category__slug', 'genre__slug', 'name', 'year',)
+    filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleSafeMethodsSerializer
+        return TitleUnsafeMethodsSerializer
+
 
 class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
@@ -35,25 +49,27 @@ class CategoryViewSet(ListCreateDestroyViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    
+
 
 class GenreViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
-    search_fields = ('name',) 
+    search_fields = ('name',)
     lookup_field = 'slug'
 
+
 class CommentsViewSet(viewsets.ModelViewSet):
-    queryset = Comments.objects.all()
+    queryset = Comment.objects.all()
+    permission_classes = (IsAdminOrModeratorOrReadOnly,)
     serializer_class = CommentSerializer
-    
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_review_id(self, **kwargs):
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Reviews, pk=review_id)
-        return review
+        return get_object_or_404(
+            Review, pk=self.kwargs.get('review_id')
+        )
 
     def get_queryset(self, **kwargs):
         review = self.get_review_id()
@@ -63,32 +79,18 @@ class CommentsViewSet(viewsets.ModelViewSet):
         review = self.get_review_id()
         serializer.save(author=self.request.user, review_id=review)
 
-    def perform_update(self, serializer):
-        super(CommentsViewSet, self).perform_update(serializer)
-
-    def perform_destroy(self, serializer):
-        super(CommentsViewSet, self).perform_destroy(serializer)
-
 
 class ReviewsViewSet(viewsets.ModelViewSet):
-    queryset = Reviews.objects.all()
     serializer_class = ReviewsSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = (IsAdminOrModeratorOrReadOnly,)
 
-    def get_review_id(self, **kwargs):
-        title_id = self.kwargs.get('id')
-        title = get_object_or_404(Title, pk=title_id)
-        return title
+    def get_title(self):
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_queryset(self, **kwargs):
-        title = self.get_review_id()
-        return title.title_review.all()
+        return self.get_title().title_review.all()
 
     def perform_create(self, serializer):
-        title = self.get_review_id()
-        serializer.save(author=self.request.user, title_id=title)
+        serializer.save(author=self.request.user, title=self.get_title())
 
-    def perform_update(self, serializer):
-        super(ReviewsViewSet, self).perform_update(serializer)
-
-    def perform_destroy(self, serializer):
-        super(ReviewsViewSet, self).perform_destroy(serializer)

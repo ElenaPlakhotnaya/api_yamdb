@@ -1,5 +1,3 @@
-import re
-
 from rest_framework import serializers
 
 from api_yamdb.settings import CONF_CODE_MAX_LEN

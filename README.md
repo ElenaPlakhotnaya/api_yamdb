@@ -67,11 +67,17 @@ python3 manage.py runserver
 Загрузить файлы cdv в базу данных:
 ``` 
 python manage.py import_category
+
 python manage.py import_comments
+
 python manage.py import_genre
+
 python manage.py import_rewiew
+
 python manage.py import_titlegenre
+
 python manage.py import_titles
+
 python manage.py import_users 
 ``` 
 

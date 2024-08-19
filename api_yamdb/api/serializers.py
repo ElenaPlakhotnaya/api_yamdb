@@ -1,6 +1,3 @@
-import datetime
-import re
-
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -68,8 +65,10 @@ class ReviewsSerializer(serializers.ModelSerializer):
         print(self.context['view'].kwargs)
         if request.method == 'POST':
             if Review.objects.filter(
-                    title=get_object_or_404(Title,
-                                            pk=self.context['view'].kwargs['title_id']),
+                    title=get_object_or_404(
+                        Title, 
+                        pk=self.context['view'].kwargs['title_id']
+                        ),
                     author=request.user
             ).exists():
                 raise serializers.ValidationError(

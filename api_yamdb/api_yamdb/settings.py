@@ -121,9 +121,7 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 CONF_CODE_MAX_LEN = 5
 
-DEFAULT_CONF_CODE = ''.join(
-    random.choices(string.ascii_uppercase + string.digits,
-                   k=CONF_CODE_MAX_LEN))
+DEFAULT_CONF_CODE = '00000'
 
 FORBIDDEN_USERNAMES = ['me']
 

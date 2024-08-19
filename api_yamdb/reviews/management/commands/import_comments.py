@@ -1,0 +1,21 @@
+from django.core.management.base import BaseCommand
+from reviews.models import Comments
+import csv
+
+class Command(BaseCommand):
+    help = 'Загружает файлы comments.csv в базу данных'
+    def handle(self, *args, **kwargs):
+        file_path = 'static/data/comments.csv'
+        with open(file_path, mode='r', encoding='utf-8') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                comment, created = Comments.objects.get_or_create(
+                    review_id=row['review_id'],
+                    text=row['text'],
+                    author=row['author'],
+                    pub_date=row['pub_date'],
+                )
+                if created:
+                    print(f"Создан комментарий: {comment.text}")
+                else:
+                    print(f"Комментарий уже существует: {comment.text}")

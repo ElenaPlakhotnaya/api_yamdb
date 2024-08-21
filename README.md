@@ -49,6 +49,7 @@ Linux/macOS
 Windows 
 
 ``` python -m pip install --upgrade pip ``` 
+
 Linux/macOS 
 
 ``` python3 -m pip install --upgrade pip ``` 

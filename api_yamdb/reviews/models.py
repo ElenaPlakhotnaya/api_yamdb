@@ -1,14 +1,16 @@
-import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
-from .constants import MAX_LENGTH_NAME, MAX_LENGTH_SLUG, MIN_VALUE_VALIDAROR, MAX_VALUE_VALIDAROR, MAX_YEAR
+
+from .constants import (MAX_LENGTH_NAME, MAX_LENGTH_SLUG, MAX_VALUE_VALIDAROR,
+                        MAX_YEAR, MIN_VALUE_VALIDAROR)
 
 
 class BaseModel(models.Model):
     name = models.CharField('Название', max_length=MAX_LENGTH_NAME)
-    slug = models.SlugField('Идентификатор', max_length=MAX_LENGTH_SLUG, unique=True)
+    slug = models.SlugField(
+        'Идентификатор', max_length=MAX_LENGTH_SLUG, unique=True)
 
     class Meta:
         abstract = True
@@ -18,7 +20,7 @@ class BaseContent(models.Model):
     text = models.TextField('Текст')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        verbose_name='Автор', related_name="%(class)s_author"
+        verbose_name='Автор', related_name='%(class)s_author'
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 
@@ -59,8 +61,10 @@ class TitleGenre(models.Model):
 class Review(BaseContent):
     score = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(MIN_VALUE_VALIDAROR, f'Оценка не может < {MIN_VALUE_VALIDAROR}'),
-            MaxValueValidator(MAX_VALUE_VALIDAROR, f'Оценка не может > {MAX_VALUE_VALIDAROR}'),
+            MinValueValidator(MIN_VALUE_VALIDAROR,
+                              f'Оценка не может < {MIN_VALUE_VALIDAROR}'),
+            MaxValueValidator(MAX_VALUE_VALIDAROR,
+                              f'Оценка не может > {MAX_VALUE_VALIDAROR}'),
         ],
     )
     title = models.ForeignKey(
@@ -97,8 +101,9 @@ class Title(models.Model):
     name = models.CharField('Название произведения', max_length=256)
     description = models.TextField('Описание')
     year = models.SmallIntegerField('Год', validators=[
-            MaxValueValidator(MAX_YEAR, f'Год выпуска не может быть позднее {MAX_YEAR}'),
-        ],)
+        MaxValueValidator(
+            MAX_YEAR, f'Год выпуска не может быть позднее {MAX_YEAR}'),
+    ],)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL, null=True,

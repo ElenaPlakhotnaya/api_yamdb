@@ -2,14 +2,14 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, viewsets
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ReviewsSerializer,
                              TitleSafeMethodsSerializer,
                              TitleUnsafeMethodsSerializer)
 from reviews.filters import TitleFilter
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Genre, Review, Title
 from users.permissions import IsAdminOrModeratorOrReadOnly, IsAdminOrReadOnly
 
 
@@ -41,7 +41,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleSafeMethodsSerializer
         return TitleUnsafeMethodsSerializer
-
 
 
 class CategoryViewSet(BaseViewSet):

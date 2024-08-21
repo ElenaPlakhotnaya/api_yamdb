@@ -19,6 +19,6 @@ class Command(BaseCommand):
                     slug=row['slug'],
                 )
                 if created:
-                    print(f"Создан жанр: {genre.name}")
+                    self.stdout.write(f'Создан жанр: {genre.name}')
                 else:
-                    print(f"Жанр уже существует: {genre.name}")
+                    self.stdout.write(f'Жанр уже существует: {genre.name}')

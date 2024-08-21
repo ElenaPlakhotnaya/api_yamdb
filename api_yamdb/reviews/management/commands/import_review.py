@@ -22,6 +22,6 @@ class Command(BaseCommand):
                     pub_date=row['pub_date'],
                 )
                 if created:
-                    print(f"Создан отзыв: {review}")
+                    self.stdout.write(f'Создан отзыв: {review}')
                 else:
-                    print(f"Отзыв уже существует: {review}")
+                    self.stdout.write(f'Отзыв уже существует: {review}')

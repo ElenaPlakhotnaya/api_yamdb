@@ -18,6 +18,6 @@ class Command(BaseCommand):
                     genre_id=Genre.objects.get(pk=row['genre_id']),
                 )
                 if created:
-                    print(f"Создан: {titlegenre}")
+                    self.stdout.write(f'Создан: {titlegenre}')
                 else:
-                    print(f"Уже существует: {titlegenre}")
+                    self.stdout.write(f'Уже существует: {titlegenre}')

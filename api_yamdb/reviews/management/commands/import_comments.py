@@ -20,6 +20,7 @@ class Command(BaseCommand):
                     pub_date=row['pub_date'],
                 )
                 if created:
-                    print(f"Создан комментарий: {comment.text}")
+                    self.stdout.write(f'Создан комментарий: {comment.text}')
                 else:
-                    print(f"Комментарий уже существует: {comment.text}")
+                    self.stdout.write(
+                        f'Комментарий уже существует: {comment.text}')

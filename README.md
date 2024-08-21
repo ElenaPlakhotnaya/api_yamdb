@@ -64,6 +64,7 @@ Windows
 
 ``` python manage.py makemigrations ``` 
 ``` python manage.py migrate ``` 
+
 Linux/macOS 
 
 ``` python3 manage.py makemigrations ``` 
@@ -74,6 +75,7 @@ Linux/macOS
 Windows 
 
 ``` python manage.py runserver ``` 
+
 Linux/macOS 
 
 ``` python3 manage.py runserver ``` 

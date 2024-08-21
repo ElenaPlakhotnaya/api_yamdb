@@ -18,7 +18,7 @@ class BaseContent(models.Model):
     text = models.TextField('Текст')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE,
-        verbose_name='Автор'
+        verbose_name='Автор', related_name="%(class)s_author"
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
 

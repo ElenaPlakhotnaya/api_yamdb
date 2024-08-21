@@ -3,19 +3,20 @@ from rest_framework.generics import get_object_or_404
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
-
-class GenreSerializer(serializers.ModelSerializer):
+class BaseSerializer(serializers.ModelSerializer):
     class Meta:
+        fields = ('name', 'slug')
+        lookup_field = 'slug'
+
+
+class GenreSerializer(BaseSerializer):
+    class Meta(BaseSerializer.Meta):
         model = Genre
-        fields = ('name', 'slug')
-        lookup_field = 'slug'
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
+class CategorySerializer(BaseSerializer):
+    class Meta(BaseSerializer.Meta):
         model = Category
-        fields = ('name', 'slug')
-        lookup_field = 'slug'
 
 
 class TitleSafeMethodsSerializer(serializers.ModelSerializer):
@@ -62,8 +63,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        print(self.context['view'].kwargs)
-        if request.method == 'POST':
+        if  request.method == 'POST':
             if Review.objects.filter(
                     title=get_object_or_404(
                         Title,

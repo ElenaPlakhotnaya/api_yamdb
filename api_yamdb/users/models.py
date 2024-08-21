@@ -61,6 +61,9 @@ class User(AbstractUser):
         verbose_name_plural = 'Пользователи'
         ordering = ('username',)
 
+    def __str__(self):
+        return self.username[:SLICE_NAME]
+
     @property
     def is_moderator(self):
         return self.role == MODERATOR
@@ -68,6 +71,3 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == ADMIN or self.is_staff
-
-    def __str__(self):
-        return self.username[:SLICE_NAME]

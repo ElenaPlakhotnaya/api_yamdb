@@ -23,6 +23,7 @@ class Command(BaseCommand):
                     last_name=row['last_name'],
                 )
                 if created:
-                    print(f"Создан пользователь: {user.username}")
+                    self.stdout.write(f'Создан пользователь: {user.username}')
                 else:
-                    print(f"Пользователь уже существует: {user.username}")
+                    self.stdout.write(
+                        f'Пользователь уже существует: {user.username}')

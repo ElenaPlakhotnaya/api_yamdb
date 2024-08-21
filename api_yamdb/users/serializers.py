@@ -2,8 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.db import IntegrityError
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-
-from api_yamdb.settings import CONF_CODE_MAX_LEN
+ 
 from users.models import User
 
 from .constants import MAX_LENGTH_EMAIL, MAX_LENGTH_NAME

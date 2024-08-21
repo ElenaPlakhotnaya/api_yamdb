@@ -20,6 +20,7 @@ class Command(BaseCommand):
                     category=Category.objects.get(id=row['category']),
                 )
                 if created:
-                    print(f"Создано произведение: {title.name}")
+                    self.stdout.write(f'Создано произведение: {title.name}')
                 else:
-                    print(f"Произведение уже существует: {title.name}")
+                    self.stdout.write(
+                        f'Произведение уже существует: {title.name}')

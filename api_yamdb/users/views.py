@@ -12,8 +12,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from api_yamdb import settings
 from users.permissions import IsAdmin
-from users.serializers import (UserNotAdminSerializer, UserSerializer,
-                               UserAccessTokenSerializer, AuthSerializer)
+from users.serializers import (AuthSerializer, UserAccessTokenSerializer,
+                               UserNotAdminSerializer, UserSerializer)
 
 User = get_user_model()
 
@@ -55,7 +55,7 @@ class APIGetTokenView(APIView):
         user = get_object_or_404(User, username=data['username'])
         token = AccessToken.for_user(user)
         return Response({'token': str(token)},
-                            status=status.HTTP_200_OK)
+                        status=status.HTTP_200_OK)
 
 
 class ApiUserSignupView(APIView):

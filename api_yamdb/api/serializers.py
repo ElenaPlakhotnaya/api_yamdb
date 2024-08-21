@@ -3,6 +3,7 @@ from rest_framework.generics import get_object_or_404
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
+
 class BaseSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
@@ -42,6 +43,9 @@ class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('rating',)
 
+    def to_representation(self, instance):
+        return TitleSafeMethodsSerializer(instance).data
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -61,20 +65,20 @@ class ReviewsSerializer(serializers.ModelSerializer):
         slug_field='username',
     )
 
+    class Meta:
+        model = Review
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        read_only_fields = ('title_id',)
+
     def validate(self, data):
         request = self.context.get('request')
         if not (request.method == 'POST'):
             return data
         if Review.objects.filter(
-                    title=get_object_or_404(
-                        Title,
-                        pk=self.context['view'].kwargs['title_id']
-                    ), author=request.user).exists():
+                title=get_object_or_404(
+                    Title,
+                    pk=self.context['view'].kwargs['title_id']
+                ), author=request.user).exists():
             raise serializers.ValidationError(
-                    'Нельзя оставлять больше одного отзыва на произведение')
+                'Нельзя оставлять больше одного отзыва на произведение')
         return data
-
-    class Meta:
-        model = Review
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
-        read_only_fields = ('title_id',)

@@ -19,6 +19,7 @@ class Command(BaseCommand):
                     slug=row['slug']
                 )
                 if created:
-                    print(f"Создана категория: {category.name}")
+                    self.stdout.write(f'Создана категория: {category.name}')
                 else:
-                    print(f"Категория уже существует: {category.name}")
+                    self.stdout.write(
+                        f'Категория уже существует: {category.name}')

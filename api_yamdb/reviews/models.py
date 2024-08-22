@@ -4,7 +4,8 @@ from django.db import models
 from users.models import User
 
 from .constants import (MAX_LENGTH_NAME, MAX_LENGTH_SLUG, MAX_VALUE_VALIDAROR,
-                        MAX_YEAR, MIN_VALUE_VALIDAROR)
+                        MIN_VALUE_VALIDAROR)
+from .validators import validate_year
 
 
 class BaseModel(models.Model):
@@ -98,12 +99,13 @@ class Comment(BaseContent):
 
 
 class Title(models.Model):
-    name = models.CharField('Название произведения', max_length=256)
+    name = models.CharField('Название произведения',
+                            max_length=MAX_LENGTH_NAME)
     description = models.TextField('Описание')
-    year = models.SmallIntegerField('Год', validators=[
-        MaxValueValidator(
-            MAX_YEAR, f'Год выпуска не может быть позднее {MAX_YEAR}'),
-    ],)
+    year = models.SmallIntegerField(
+        'Год',
+        validators=[validate_year],
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL, null=True,

@@ -64,7 +64,8 @@ class ApiUserSignupView(APIView):
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
         if serializer.is_valid():
-            user = User.objects.get(
+            user = get_object_or_404(
+                User,
                 username=request.data.get('username'),
                 email=request.data.get('email')
             )

@@ -49,4 +49,5 @@ class AuthSerializer(serializers.Serializer, UserMixin):
             raise serializers.ValidationError(
                 'Одно из полей username или email уже занято'
             )
+        
         return data

@@ -34,9 +34,10 @@ class TitleSafeMethodsSerializer(serializers.ModelSerializer):
 
 class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(queryset=Genre.objects.all(),
-                                         slug_field='slug', many=True)
+                                         slug_field='slug', many=True, required=True, allow_null=False)
     category = serializers.SlugRelatedField(queryset=Category.objects.all(),
-                                            slug_field='slug')
+                                            slug_field='slug', allow_null=False)
+    description = serializers.CharField(required=False)
 
     class Meta:
         model = Title
@@ -53,9 +54,8 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
-        read_only_fields = ('review_id',)
 
 
 class ReviewsSerializer(serializers.ModelSerializer):

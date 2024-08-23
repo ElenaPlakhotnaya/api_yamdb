@@ -52,10 +52,10 @@ class Genre(BaseModel):
 
 class TitleGenre(models.Model):
     title_id = models.ForeignKey(
-        'Title', on_delete=models.CASCADE, null=True,
+        'Title', on_delete=models.CASCADE,
     )
     genre_id = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, null=True,
+        Genre, on_delete=models.CASCADE,
     )
 
 
@@ -101,7 +101,7 @@ class Comment(BaseContent):
 class Title(models.Model):
     name = models.CharField('Название произведения',
                             max_length=MAX_LENGTH_NAME)
-    description = models.TextField('Описание')
+    description = models.TextField('Описание', blank=True)
     year = models.SmallIntegerField(
         'Год',
         validators=[validate_year],

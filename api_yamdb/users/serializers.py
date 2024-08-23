@@ -41,15 +41,43 @@ class AuthSerializer(serializers.Serializer, UserMixin):
     email = serializers.EmailField(required=True, max_length=MAX_LENGTH_EMAIL)
 
     def validate(self, data):
-        try:
-            User.objects.get_or_create(
-                username=data.get('username'),
-                email=data.get('email')
-            )
-        except IntegrityError:
+        username = data['username']
+        email = data['email']
+
+        if User.objects.filter(username=username, email=email).exists():
+            return data
+        if User.objects.filter(email=email).exists() and User.objects.filter(
+                username=username).exists():
             raise ValidationError(
-                'Пользователь с таким {} уже зарегистрирован.'.format(
-                    'email' if User.objects.filter(
-                        email=data.get('email')) else 'именем')
+                {'email': 'Email already registered',
+                 'username': 'Username already taken'}
+            )
+        if User.objects.filter(email=email).exists():
+            raise ValidationError(
+                {'email': 'Email already registered'}
+            )
+        if User.objects.filter(username=username).exists():
+            raise ValidationError(
+                {'username': 'Username already taken'}
             )
         return data
+
+    def create(self, validated_data):
+        email = validated_data['email']
+        username = validated_data['username']
+
+        user, _ = User.objects.get_or_create(username=username, email=email)
+        return user
+
+        # try:
+        #     User.objects.get_or_create(
+        #         username=data.get('username'),
+        #         email=data.get('email')
+        #     )
+        # except IntegrityError:
+        #     raise ValidationError(
+        #         'Пользователь с таким {} уже зарегистрирован.'.format(
+        #             'email' if User.objects.filter(
+        #                 email=data.get('email')) else 'именем')
+        #     )
+        # return data

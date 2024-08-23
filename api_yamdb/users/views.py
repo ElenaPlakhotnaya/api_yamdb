@@ -49,6 +49,7 @@ class APIGetTokenView(APIView):
     serializer_class = UserSerializer
 
     def post(self, request):
+        print(request.data)
         serializer = UserAccessTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -69,6 +70,8 @@ class ApiUserSignupView(APIView):
                 email=request.data.get('email')
             )
             confirmation_code = default_token_generator.make_token(user)
+            user.confirmation_code = confirmation_code
+            user.save()
             send_mail(
                 'Код подтверждения',
                 f'Ваш код - {confirmation_code}',

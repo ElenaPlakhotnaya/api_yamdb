@@ -65,11 +65,7 @@ class ApiUserSignupView(APIView):
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
         if serializer.is_valid():
-            user = get_object_or_404(
-                User,
-                username=request.data.get('username'),
-                email=request.data.get('email')
-            )
+            user = serializer.save()
             confirmation_code = default_token_generator.make_token(user)
             user.confirmation_code = confirmation_code
             user.save()

@@ -1,5 +1,4 @@
 from django.contrib.auth.tokens import default_token_generator
-from django.db import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404

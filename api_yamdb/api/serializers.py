@@ -72,7 +72,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        if not (request.method == 'POST'):
+        if request.method != 'POST':
             return data
         if Review.objects.filter(
                 title=get_object_or_404(

@@ -28,11 +28,8 @@ class BaseViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(
-        rating=Avg('title_review__score')
-    )
-    filter_backends = (DjangoFilterBackend, OrderingFilter)
-    ordering_fields = ['name', 'year']
+    queryset = Title.objects.all()
+    filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)
     filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'patch', 'delete']

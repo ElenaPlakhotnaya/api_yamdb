@@ -52,10 +52,16 @@ class Genre(BaseModel):
 
 class TitleGenre(models.Model):
     title_id = models.ForeignKey(
-        'Title', on_delete=models.CASCADE,
+        'Title',
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     genre_id = models.ForeignKey(
-        Genre, on_delete=models.CASCADE,
+        Genre,
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
 
 
@@ -108,11 +114,15 @@ class Title(models.Model):
     )
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET_NULL, null=True,
+        on_delete=models.CASCADE, null=False,
+        blank=False,
         verbose_name='Категория',
     )
     genre = models.ManyToManyField(
-        Genre, through=TitleGenre, verbose_name='Жанр',
+        Genre,
+        through=TitleGenre,
+        blank=False,
+        verbose_name='Жанр',
     )
 
     class Meta:

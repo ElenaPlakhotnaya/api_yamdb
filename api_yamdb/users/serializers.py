@@ -1,6 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
-from django.db import IntegrityError
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
 from users.models import User
@@ -40,13 +40,43 @@ class AuthSerializer(serializers.Serializer, UserMixin):
     email = serializers.EmailField(required=True, max_length=MAX_LENGTH_EMAIL)
 
     def validate(self, data):
-        try:
-            User.objects.get_or_create(
-                username=data.get('username'),
-                email=data.get('email')
+        username = data['username']
+        email = data['email']
+
+        if User.objects.filter(username=username, email=email).exists():
+            return data
+        if User.objects.filter(email=email).exists() and User.objects.filter(
+                username=username).exists():
+            raise ValidationError(
+                {'email': 'Email already registered',
+                 'username': 'Username already taken'}
             )
-        except IntegrityError:
-            raise serializers.ValidationError(
-                'Одно из полей username или email уже занято'
+        if User.objects.filter(email=email).exists():
+            raise ValidationError(
+                {'email': 'Email already registered'}
+            )
+        if User.objects.filter(username=username).exists():
+            raise ValidationError(
+                {'username': 'Username already taken'}
             )
         return data
+
+    def create(self, validated_data):
+        email = validated_data['email']
+        username = validated_data['username']
+
+        user, _ = User.objects.get_or_create(username=username, email=email)
+        return user
+
+        # try:
+        #     User.objects.get_or_create(
+        #         username=data.get('username'),
+        #         email=data.get('email')
+        #     )
+        # except IntegrityError:
+        #     raise ValidationError(
+        #         'Пользователь с таким {} уже зарегистрирован.'.format(
+        #             'email' if User.objects.filter(
+        #                 email=data.get('email')) else 'именем')
+        #     )
+        # return data

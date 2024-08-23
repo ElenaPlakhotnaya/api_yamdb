@@ -4,7 +4,8 @@ from django.db import models
 from users.models import User
 
 from .constants import (MAX_LENGTH_NAME, MAX_LENGTH_SLUG, MAX_VALUE_VALIDAROR,
-                        MAX_YEAR, MIN_VALUE_VALIDAROR)
+                        MIN_VALUE_VALIDAROR)
+from .validators import validate_year
 
 
 class BaseModel(models.Model):
@@ -51,10 +52,16 @@ class Genre(BaseModel):
 
 class TitleGenre(models.Model):
     title_id = models.ForeignKey(
-        'Title', on_delete=models.CASCADE, null=True,
+        'Title',
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     genre_id = models.ForeignKey(
-        Genre, on_delete=models.CASCADE, null=True,
+        Genre,
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
 
 
@@ -98,19 +105,24 @@ class Comment(BaseContent):
 
 
 class Title(models.Model):
-    name = models.CharField('Название произведения', max_length=256)
-    description = models.TextField('Описание')
-    year = models.SmallIntegerField('Год', validators=[
-        MaxValueValidator(
-            MAX_YEAR, f'Год выпуска не может быть позднее {MAX_YEAR}'),
-    ],)
+    name = models.CharField('Название произведения',
+                            max_length=MAX_LENGTH_NAME)
+    description = models.TextField('Описание', blank=True)
+    year = models.SmallIntegerField(
+        'Год',
+        validators=[validate_year],
+    )
     category = models.ForeignKey(
         Category,
-        on_delete=models.SET_NULL, null=True,
+        on_delete=models.CASCADE, null=False,
+        blank=False,
         verbose_name='Категория',
     )
     genre = models.ManyToManyField(
-        Genre, through=TitleGenre, verbose_name='Жанр',
+        Genre,
+        through=TitleGenre,
+        blank=False,
+        verbose_name='Жанр',
     )
 
     class Meta:

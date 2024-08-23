@@ -1,3 +1,4 @@
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -13,35 +14,58 @@ class BaseSerializer(serializers.ModelSerializer):
 class GenreSerializer(BaseSerializer):
     class Meta(BaseSerializer.Meta):
         model = Genre
+        fields = (
+            'name',
+            'slug'
+        )
 
 
 class CategorySerializer(BaseSerializer):
     class Meta(BaseSerializer.Meta):
         model = Category
+        fields = (
+            'name',
+            'slug'
+        )
 
 
 class TitleSafeMethodsSerializer(serializers.ModelSerializer):
-    rating = serializers.IntegerField(read_only=True)
+    rating = serializers.SerializerMethodField()
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
+
+    def get_rating(self, obj):
+        rating = Review.objects.filter(title=obj).aggregate(
+            Avg('score'))['score__avg']
+        if rating:
+            return int(rating)
+        return None
 
     class Meta:
         model = Title
         fields = (
             'id', 'name', 'year', 'rating', 'description', 'genre', 'category')
-        read_only_fields = fields
 
 
 class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(queryset=Genre.objects.all(),
-                                         slug_field='slug', many=True)
+                                         slug_field='slug',
+                                         many=True,
+                                         required=True,
+                                         allow_empty=False)
     category = serializers.SlugRelatedField(queryset=Category.objects.all(),
                                             slug_field='slug')
 
     class Meta:
         model = Title
-        fields = '__all__'
-        read_only_fields = ('rating',)
+        fields = (
+            'id',
+            'name',
+            'year',
+            'description',
+            'category',
+            'genre',
+        )
 
     def to_representation(self, instance):
         return TitleSafeMethodsSerializer(instance).data
@@ -53,9 +77,8 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'author', 'text', 'pub_date')
         model = Comment
-        read_only_fields = ('review_id',)
 
 
 class ReviewsSerializer(serializers.ModelSerializer):
@@ -72,7 +95,7 @@ class ReviewsSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         request = self.context.get('request')
-        if not (request.method == 'POST'):
+        if request.method != 'POST':
             return data
         if Review.objects.filter(
                 title=get_object_or_404(

@@ -54,7 +54,6 @@ class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def to_representation(self, instance):
-        print(TitleSafeMethodsSerializer(instance).data)
         return TitleSafeMethodsSerializer(instance).data
 
 

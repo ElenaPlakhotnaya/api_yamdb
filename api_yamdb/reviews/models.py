@@ -31,7 +31,6 @@ class BaseContent(models.Model):
 
 
 class Category(BaseModel):
-
     class Meta(BaseModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -41,7 +40,6 @@ class Category(BaseModel):
 
 
 class Genre(BaseModel):
-
     class Meta(BaseModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
@@ -77,7 +75,7 @@ class Review(BaseContent):
     title = models.ForeignKey(
         'Title',
         on_delete=models.CASCADE, null=True,
-        related_name='title_review'
+        related_name='reviews'
     )
 
     class Meta:

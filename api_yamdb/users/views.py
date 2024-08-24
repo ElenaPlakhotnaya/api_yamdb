@@ -49,7 +49,6 @@ class APIGetTokenView(APIView):
     serializer_class = UserSerializer
 
     def post(self, request):
-        print(request.data)
         serializer = UserAccessTokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -64,16 +63,15 @@ class ApiUserSignupView(APIView):
 
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            confirmation_code = default_token_generator.make_token(user)
-            user.confirmation_code = confirmation_code
-            user.save()
-            send_mail(
-                'Код подтверждения',
-                f'Ваш код - {confirmation_code}',
-                settings.ADMIN_EMAIL_ADDRESS,
-                [request.data.get('email')]
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        confirmation_code = default_token_generator.make_token(user)
+        user.confirmation_code = confirmation_code
+        user.save()
+        send_mail(
+            'Код подтверждения',
+            f'Ваш код - {confirmation_code}',
+            settings.ADMIN_EMAIL_ADDRESS,
+            [request.data.get('email')]
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)

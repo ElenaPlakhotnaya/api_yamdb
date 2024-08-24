@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -30,16 +29,9 @@ class CategorySerializer(BaseSerializer):
 
 
 class TitleSafeMethodsSerializer(serializers.ModelSerializer):
-    rating = serializers.SerializerMethodField()
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-
-    def get_rating(self, obj):
-        rating = Review.objects.filter(title=obj).aggregate(
-            Avg('score'))['score__avg']
-        if rating:
-            return int(rating)
-        return None
+    rating = serializers.IntegerField(read_only=True, default=None)
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Title
@@ -58,14 +50,7 @@ class TitleUnsafeMethodsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = (
-            'id',
-            'name',
-            'year',
-            'description',
-            'category',
-            'genre',
-        )
+        fields = '__all__'
 
     def to_representation(self, instance):
         return TitleSafeMethodsSerializer(instance).data
